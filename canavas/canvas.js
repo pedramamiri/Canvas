@@ -4,16 +4,18 @@ const width   = window.innerWidth;
 const height  = window.innerHeight;
 canvas.width  = width -10;
 canvas.height = height -10;
+var raf;
 var circle = [];
 
-function Circle (x,y,dx,dy,radius,color){
-  this.x      = x;
-  this.y      = y;
-  this.dx     = dx;
-  this.dy     = dy;
-  this.radius = radius;
-  this.color  = color;
-  this.state  = Math.floor(Math.random() * 2) + 1;
+function Circle (x,y,vx,vy,radius,color){
+  this.x       = x;
+  this.y       = y;
+  this.vx      = vx;
+  this.vy      = vy;
+  this.radius  = radius;
+  this.color   = color;
+  this.state   = Math.floor(Math.random() * 2) + 1;
+  this.gravity = 1 * this.radius/8; 
   
   this.draw = ()=>{
     ctx.beginPath();
@@ -28,15 +30,19 @@ function Circle (x,y,dx,dy,radius,color){
       
   }
   this.update = ()=>{
-    if(this.x + this.radius > width || this.x - this.radius < 0){
-      this.dx = -this.dx;
+    this.x  += this.vx;
+    this.y  += this.vy;
+
+    if(this.x + this.radius > canvas.width  || this.x - this.radius < 0){
+      this.vx = -this.vx;
     }
-    if(this.y + this.radius > height || this.y - radius < 0){
-      this.dy = -this.dy;
+    if(this.y + this.radius > canvas.height || this.y - radius < 0){
+      this.vy *= -0.6;
+      this.vx *= 0.95;
+      this.y = canvas.height - this.radius;
     }
-    this.x += this.dx;
-    this.y += this.dy;
     
+    this.vy += this.gravity;
     this.draw();
   }
   return {
@@ -44,36 +50,24 @@ function Circle (x,y,dx,dy,radius,color){
     update : this.update
   }
 }
-for (var i=0;i<50;i++){
+for (var i=0;i<200;i++){
   let r = Math.floor(Math.random() * 256);
   let g = Math.floor(Math.random() * 256);
   let b = Math.floor(Math.random() * 256);
   let color = `rgb(${r},${g},${b})`; 
-  var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
-  let speed = (Math.floor(Math.random() * 8) + 1) * plusOrMinus;
-  let radius = Math.random() * 30;
-  circle.push(new Circle(Math.random() * width ,Math.random() * height , speed,speed, radius,color))
+  let speed = Math.floor(Math.random() * 8) + 1;
+  let radius = Math.floor(Math.random() * 30) + 1;
+  circle.push(new Circle(Math.floor(Math.random() * canvas.width) +10 ,30, speed,speed, radius,color))
 }
 
 
 
 
 function animate(){
-  requestAnimationFrame(animate)
+  ref = requestAnimationFrame(animate)
   ctx.clearRect(0,0,width,height);
   circle.forEach(c => {
     c.update();
 });
-  
-  
-  
-  
-  
-  
 }
-
-  
-  
-  
-
   
